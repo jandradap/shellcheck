@@ -1,8 +1,9 @@
-FROM koalaman/shellcheck-alpine
+FROM koalaman/shellcheck AS build
+LABEL maintainer="Vidar Holen <vidar@vidarholen.net>"
 
-ARG BUILD_DATE
-ARG VCS_REF
-ARG VERSION
+# ShellCheck image
+FROM alpine:3.15
+
 LABEL org.label-schema.build-date=$BUILD_DATE \
 			org.label-schema.name="shellcheck" \
 			org.label-schema.description="koalaman/shellcheck with bash" \
@@ -15,7 +16,11 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 			maintainer="Jorge Andrada Prieto <jandradap@gmail.com>" \
 			org.label-schema.docker.cmd=""
 
-WORKDIR /root
-
 RUN apk --update --clean-protected --no-cache add \
   bash
+  
+WORKDIR /mnt
+
+COPY --from=build /bin/shellcheck /bin/
+
+ENTRYPOINT ["/bin/shellcheck"]
